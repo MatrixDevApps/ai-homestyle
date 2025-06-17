@@ -47,7 +47,7 @@ app.post("/api/generate", async (req, res) => {
 
     // 2. Poll until status is 'succeeded' or 'failed'
     let result = null;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 30; i++) {
       const pollRes = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
         headers: {
           Authorization: `Token ${replicateApiKey}`,
