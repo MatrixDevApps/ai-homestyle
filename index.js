@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const replicateApiKey = process.env.REPLICATE_API_KEY;
-const replicateVersion = "6f1cfd3fdb40ac36c919eab9eebd265f81eebae97a2dd28515ed79018660ebf4"; // RoomGPT
+const replicateVersion = "7f604efcd4f442f61281f6161e49bd5b94836b07fc1bb578d64c7b7f4db8a64a"; // adirik/interior-design
 
 app.post("/api/generate", async (req, res) => {
   const { imageUrl, room, theme } = req.body;
@@ -20,7 +20,7 @@ app.post("/api/generate", async (req, res) => {
   }
 
   try {
-    // 1. Start prediction
+    // 1️⃣ Start prediction
     const startRes = await fetch("https://api.replicate.com/v1/predictions", {
       method: "POST",
       headers: {
@@ -31,8 +31,12 @@ app.post("/api/generate", async (req, res) => {
         version: replicateVersion,
         input: {
           image: imageUrl,
-          room_type: room,
-          theme: theme,
+          prompt: `${theme} ${room} interior design`,
+          negative_prompt:
+            "lowres, watermark, banner, logo, watermark, contactinfo, text, deformed, blurry, blur, out of focus, out of frame, surreal, extra, ugly, upholstered walls, fabric walls, plush walls, mirror, mirrored, functional, realistic",
+          num_inference_steps: 50,
+          guidance_scale: 15,
+          prompt_strength: 0.8,
         },
       }),
     });
@@ -45,7 +49,7 @@ app.post("/api/generate", async (req, res) => {
 
     const predictionId = prediction.id;
 
-    // 2. Poll until status is 'succeeded' or 'failed'
+    // 2️⃣ Poll until status is 'succeeded' or 'failed'
     let result = null;
     for (let i = 0; i < 30; i++) {
       const pollRes = await fetch(`https://api.replicate.com/v1/predictions/${predictionId}`, {
